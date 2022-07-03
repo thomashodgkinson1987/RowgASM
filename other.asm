@@ -15,7 +15,7 @@ section .data
 	screen_height	equ	0x10
 	screen_length	equ	screen_width * screen_height
 
-	string			db	"Hello", 0x00, 0x00, 0x00
+	string		db	"Hello", 0x00, 0x00, 0x00
 
 section .bss
 
@@ -25,35 +25,36 @@ section .text
 
 print:
 	push	ebp
-	mov		ebp, esp
+	mov	ebp, esp
 
 	call	stop_cursor_blinking
 	call	hide_cursor
 	call	clear_console
 
 	push	screen_length	; Fill the screen buffer
-	push	0x2E			; "."
+	push	0x2E		; "."
 	push	screen_buffer
 	call	_memset
-	add		esp, 0x0C
+	add	esp, 0x0C
 
 	push	screen_buffer	; Print the screen buffer
 	call	_printf
-	add		esp, 0x04
+	add	esp, 0x04
 
 	call	save_cursor_position
 
 	push	dword 0x02
 	push	dword 0x02
 	call	set_cursor_position
-	add		esp, 0x08
-	
+	add	esp, 0x08
+
 	push	string
 	call	_printf
-	add		esp, 0x04
+	add	esp, 0x04
 
 	call	restore_cursor_position
 
-	mov		esp, ebp
-	pop		ebp
+	mov	esp, ebp
+	pop	ebp
 	ret
+
