@@ -39,7 +39,6 @@ byte_to_string:
 	movzx	eax, byte [ebp + 0x08]	; byte to convert
 	mov	ebx, dword [ebp + 0x0C]	; address of array
 	mov	ecx, 0x03		; array offset
-	mov	edx, 0x00		; remainder
 
 .while_loop:
 	mov	edx, 0x00		; reset edx ready for div
