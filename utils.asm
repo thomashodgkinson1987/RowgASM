@@ -1,14 +1,6 @@
 extern _system
 extern _printf
-
-global byte_to_string
-global set_cursor_position
-global print_string_at_position
-global save_cursor_position
-global restore_cursor_position
-global stop_cursor_blinking
-global hide_cursor
-global clear_console
+extern _putchar
 
 section .data
 
@@ -33,6 +25,7 @@ array		resb	0x04
 
 section .text
 
+global byte_to_string
 byte_to_string:
 	push	ebp
 	mov	ebp, esp
@@ -60,6 +53,7 @@ byte_to_string:
 	pop	ebp
 	ret
 
+global set_cursor_position
 set_cursor_position:
 	push	ebp,
 	mov	ebp, esp
@@ -92,6 +86,29 @@ set_cursor_position:
 	pop	ebp
 	ret
 
+global print_char_at_position
+print_char_at_position:
+	push	ebp
+	mov	ebp, esp
+
+	call	save_cursor_position
+
+	push	dword [ebp + 0x0C]
+	push	dword [ebp + 0x08]
+	call	set_cursor_position
+	add	esp, 0x08
+
+	push	dword [ebp + 0x10]
+	call	_putchar
+	add	esp, 0x04
+
+	call	restore_cursor_position
+
+	mov	esp, ebp
+	pop	ebp
+	ret
+
+global print_string_at_position
 print_string_at_position:
 	push	ebp
 	mov	ebp, esp
@@ -113,30 +130,35 @@ print_string_at_position:
 	pop	ebp
 	ret
 
+global save_cursor_position
 save_cursor_position:
 	push	ansidata02
 	call	_printf
 	add	esp, 0x04
 	ret
 
+global restore_cursor_position
 restore_cursor_position:
 	push	ansidata03
 	call	_printf
 	add	esp, 0x04
 	ret
 
+global stop_cursor_blinking
 stop_cursor_blinking:
 	push	ansidata04
 	call	_printf
 	add	esp, 0x04
 	ret
 
+global hide_cursor
 hide_cursor:
 	push	ansidata05
 	call	_printf
 	add	esp, 0x04
 	ret
 
+global clear_console
 clear_console:
 	push	systemarg_cls
 	call	_system

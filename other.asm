@@ -1,6 +1,7 @@
 extern _printf
 extern _memset
 extern set_cursor_position
+extern print_char_at_position
 extern print_string_at_position
 extern save_cursor_position
 extern restore_cursor_position
@@ -43,13 +44,18 @@ print:
 	call	_printf
 	add	esp, 0x04
 
-	push	string2
+	push	string
 	push	dword 0x02
 	push	dword 0x03
 	call	print_string_at_position
 	add	esp, 0x0C
 
+	push	dword 0x23
+	push	dword 0x05
+	push	dword 0x07
+	call	print_char_at_position
+	add	esp, 0x0C
+
 	mov	esp, ebp
 	pop	ebp
 	ret
-

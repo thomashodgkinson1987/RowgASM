@@ -15,8 +15,6 @@ extern _ExitProcess@4
 
 extern print
 
-global _main
-
 section .data
 
 	screen_width		equ	0x10
@@ -69,6 +67,7 @@ section .bss
 
 section .text
 
+global _main
 _main:
 	call	print
 
