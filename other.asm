@@ -1,7 +1,7 @@
 extern _printf
 extern _memset
 extern set_cursor_position
-extern print_char_at_position
+extern print_string_at_position
 extern save_cursor_position
 extern restore_cursor_position
 extern stop_cursor_blinking
@@ -46,7 +46,7 @@ print:
 	push	string2
 	push	dword 0x02
 	push	dword 0x03
-	call	print_char_at_position
+	call	print_string_at_position
 	add	esp, 0x0C
 
 	mov	esp, ebp

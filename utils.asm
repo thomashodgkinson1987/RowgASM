@@ -3,7 +3,7 @@ extern _printf
 
 global byte_to_string
 global set_cursor_position
-global print_char_at_position
+global print_string_at_position
 global save_cursor_position
 global restore_cursor_position
 global stop_cursor_blinking
@@ -92,7 +92,7 @@ set_cursor_position:
 	pop	ebp
 	ret
 
-print_char_at_position:
+print_string_at_position:
 	push	ebp
 	mov	ebp, esp
 
