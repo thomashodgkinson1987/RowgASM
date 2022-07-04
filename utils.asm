@@ -38,7 +38,7 @@ byte_to_string:
 
 	movzx	eax, byte [ebp + 0x08]	; byte to convert
 	mov	ebx, dword [ebp + 0x0C]	; address of array
-	mov	ecx, 0x00		; array offset
+	mov	ecx, 0x03		; array offset
 	mov	edx, 0x00		; remainder
 
 .while_loop:
@@ -49,7 +49,7 @@ byte_to_string:
 	pop	ebx
 	add	edx, 0x30
 	mov	[ebx + ecx], byte dl	; move remainder to array+offset
-	inc	ecx			; increase offset
+	dec	ecx			; decrease offset
 	cmp	eax, 0x0A		; continue loop if eax >= 0x0A
 	jae	.while_loop
 
@@ -64,37 +64,25 @@ set_cursor_position:
 	push	ebp,
 	mov	ebp, esp
 
-	mov	[array], dword 0x30303031
+	mov	[array], dword 0x31303030
 
 	push	array
 	push	dword [ebp + 0x08]
 	call	byte_to_string
 	add	esp, 0x08
 
-	movzx	eax, byte [array + 0x00]
-	mov	[ansidata01 + 0x0C], byte al
-	movzx	eax, byte [array + 0x01]
-	mov	[ansidata01 + 0x0B], byte al
-	movzx	eax, byte [array + 0x02]
-	mov	[ansidata01 + 0x0A], byte al
-	movzx	eax, byte [array + 0x03]
-	mov	[ansidata01 + 0x09], byte al
+	mov	eax, dword [array]
+	mov	[ansidata01 + 0x09], eax
 
-	mov	[array], dword 0x30303031
+	mov	[array], dword 0x31303030
 
 	push	array
 	push	dword [ebp + 0x0C]
 	call	byte_to_string
 	add	esp, 0x08
 
-	movzx	eax, byte [array + 0x00]
-	mov	[ansidata01 + 0x06], byte al
-	movzx	eax, byte [array + 0x01]
-	mov	[ansidata01 + 0x05], byte al
-	movzx	eax, byte [array + 0x02]
-	mov	[ansidata01 + 0x04], byte al
-	movzx	eax, byte [array + 0x03]
-	mov	[ansidata01 + 0x03], byte al
+	mov	eax, dword [array]
+	mov	[ansidata01 + 0x03], eax
 
 	push	ansidata01
 	call	_printf
