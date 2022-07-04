@@ -13,6 +13,15 @@ extern _fputs
 extern _fread
 extern _ExitProcess@4
 
+extern set_cursor_position
+extern print_char_at_position
+extern print_string_at_position
+extern save_cursor_position
+extern restore_cursor_position
+extern stop_cursor_blinking
+extern hide_cursor
+extern clear_console
+
 extern print
 
 section .data
@@ -45,6 +54,9 @@ section .bss
 
 	screen_buffer		resb	screen_length
 
+	screen_buffer_offset_x	resb	0x01
+	screen_buffer_offset_y	resb	0x01
+
 	wall_tiles		resb	screen_length
 	floor_tiles		resb	screen_length
 
@@ -69,15 +81,18 @@ section .text
 
 global _main
 _main:
-	call	print
-
-	jmp	exit
-
+	call	stop_cursor_blinking
+	call	hide_cursor
 	call	init_random_number_generator
 
 start:
-	mov	[player_x], byte 0x09
-	mov	[player_y], byte 0x09
+	call	clear_console
+
+	mov	[screen_buffer_offset_x], byte 0x00
+	mov	[screen_buffer_offset_y], byte 0x03
+
+	mov	[player_x], byte 0x08
+	mov	[player_y], byte 0x08
 
 	mov	[player_tile], byte 0x40
 	mov	[floor_tile], byte 0x2E
@@ -113,7 +128,7 @@ start:
 	call	load_level_data
 	add	esp, 0x0C
 
-	call	draw
+	call	redraw_all
 	jmp	tick
 
 init_random_number_generator:
@@ -203,24 +218,23 @@ tick:
 	add	esp, 0x04
 
 .end:
-	call	draw
+	call	update_screen_buffer
+	call	save_cursor_position
+	push	dword [screen_buffer_offset_y]
+	push	dword [screen_buffer_offset_x]
+	call	set_cursor_position
+	add	esp, 0x08
+	call	print_screen_buffer
+	call	restore_cursor_position
 	jmp	tick
 
-draw:
+update_screen_buffer:
 	push	ebp
 	mov	ebp, esp
 
-	call	clear_screen
-
-	push	titlemsg
-	call	_printf
+	push	dword 0x20
+	call	fill_screen_buffer
 	add	esp, 0x04
-
-	push	newline
-	call	_printf
-	add	esp, 0x04
-
-	call	clear_screen_buffer
 
 	cmp	[floor_visible], byte 01b
 	jne	.check_wall_visible
@@ -240,6 +254,30 @@ draw:
 	call	add_player_to_screen_buffer
 
 .visible_checks_end:
+	mov	esp, ebp
+	pop	ebp
+	ret
+
+redraw_all:
+	push	ebp
+	mov	ebp, esp
+
+	call	clear_console
+
+	push	dword 0x01
+	push	dword 0x01
+	call	set_cursor_position
+	add	esp, 0x08
+
+	push	titlemsg
+	call	_printf
+	add	esp, 0x04
+
+	push	newline
+	call	_printf
+	add	esp, 0x04
+
+	call	update_screen_buffer
 	call	print_screen_buffer
 	
 	push	newline
@@ -247,12 +285,6 @@ draw:
 	add	esp, 0x04
 
 	call	print_help_messages
-
-	push	newline
-	call	_printf
-	add	esp, 0x04
-
-	call	print_player_position
 
 	push	newline
 	call	_printf
@@ -293,7 +325,7 @@ load_level_data:
 .increase_floor_byte:
 	inc	eax
 	cmp	eax, screen_length
-	je	.load_floor_tiles_end
+	je	.start_load_wall_tiles
 
 .load_next_floor_tile:
 	push	eax
@@ -307,8 +339,6 @@ load_level_data:
 	call	add_floor_using_byte_position
 	pop	eax
 	jmp	.increase_floor_byte
-
-.load_floor_tiles_end:
 
 .start_load_wall_tiles:
 	mov	eax, 0x00
@@ -337,28 +367,6 @@ load_level_data:
 	push	dword [ebp + 0x10]
 	call	_fclose
 	add	esp, 0x04
-
-	mov	esp, ebp
-	pop	ebp
-	ret
-
-remove_random_floor_tiles:
-	push	ebp
-	mov	ebp, esp
-
-	movzx	eax, byte [ebp + 0x08]
-
-.loop:
-	push	eax
-	call	_rand
-	mov	edx, 0x00
-	mov	ebx, screen_length
-	div	ebx
-	mov	[floor_tiles + edx], byte 0x00
-	pop	eax
-	dec	eax
-	cmp	eax, 0x00
-	ja	.loop
 
 	mov	esp, ebp
 	pop	ebp
@@ -794,45 +802,6 @@ print_help_messages:
 	
 	ret
 
-print_player_position:
-	push	ebp
-	mov	ebp, esp
-	sub	esp, 0x04
-
-	push	ui_player_pos_lbl1
-	call	_printf
-	add	esp, 0x04
-
-	mov	eax, ebp
-	sub	eax, 0x04
-	mov	[eax], dword 0x00007525
-
-	movzx	ebx, byte [player_x]
-	push	ebx
-	push	eax
-	call	_printf
-	add	esp, 0x08
-
-	push	ui_player_pos_lbl2
-	call	_printf
-	add	esp, 0x04
-
-	mov	eax, ebp
-	sub	eax, 0x04
-	mov	[eax], dword 0x00007525
-
-	movzx	ebx, byte [player_y]
-	push	ebx
-	push	eax
-	call	_printf
-	add	esp, 0x08
-
-	add	esp, 0x04
-
-	mov	esp, ebp
-	pop	ebp
-	ret
-
 clear_screen_buffer:
 	push	ebp
 	mov	ebp, esp
@@ -840,23 +809,6 @@ clear_screen_buffer:
 	push	dword 0x20
 	call	fill_screen_buffer
 	add	esp, 0x04
-
-	mov	esp, ebp
-	pop	ebp
-	ret
-
-clear_screen:
-	push	ebp
-	mov	ebp, esp
-	sub	esp, 0x04
-
-	mov	eax, ebp
-	sub	eax, 0x04
-	mov	[eax], dword 0x00736C63
-
-	push	eax
-	call	_system
-	add	esp, 0x08
 
 	mov	esp, ebp
 	pop	ebp
