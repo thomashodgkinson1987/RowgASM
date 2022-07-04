@@ -49,19 +49,6 @@ print:
 	call	print_char_at_position
 	add	esp, 0x0C
 
-	;call	save_cursor_position
-
-	;push	dword 0x02
-	;push	dword 0x02
-	;call	set_cursor_position
-	;add	esp, 0x08
-
-	;push	string
-	;call	_printf
-	;add	esp, 0x04
-
-	;call	restore_cursor_position
-
 	mov	esp, ebp
 	pop	ebp
 	ret
