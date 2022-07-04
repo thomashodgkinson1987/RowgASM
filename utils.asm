@@ -3,6 +3,7 @@ extern _printf
 
 global byte_to_string
 global set_cursor_position
+global print_char_at_position
 global save_cursor_position
 global restore_cursor_position
 global stop_cursor_blinking
@@ -86,6 +87,27 @@ set_cursor_position:
 	push	ansidata01
 	call	_printf
 	add	esp, 0x04
+
+	mov	esp, ebp
+	pop	ebp
+	ret
+
+print_char_at_position:
+	push	ebp
+	mov	ebp, esp
+
+	call	save_cursor_position
+
+	push	dword [ebp + 0x0C]
+	push	dword [ebp + 0x08]
+	call	set_cursor_position
+	add	esp, 0x08
+
+	push	dword [ebp + 0x10]
+	call	_printf
+	add	esp, 0x04
+
+	call	restore_cursor_position
 
 	mov	esp, ebp
 	pop	ebp
