@@ -91,86 +91,12 @@ get_window_x:
 	push	ebp
 	mov	ebp, esp
 
-	mov	ebx, dword [ebp + 0x08]
+	movzx	ebx, byte [ebp + 0x08]
+	mov	ecx, dword [entry_size]
+	imul	ebx, ecx
 	add	ebx, offset_x
 
 	movzx	eax, byte [ebx]
-
-	mov	esp, ebp
-	pop	ebp
-	ret
-
-global set_window_x
-set_window_x:
-	push	ebp
-	mov	ebp, esp
-
-	mov	eax, dword [ebp + 0x08]
-	add	eax, offset_x
-
-	movzx	ebx, byte [ebp + 0x0C]
-
-	mov	[eax], byte bl
-
-	mov	esp, ebp
-	pop	ebp
-	ret
-
-global get_window_width
-get_window_width:
-	push	ebp
-	mov	ebp, esp
-
-	mov	ebx, dword [ebp + 0x08]
-	add	ebx, offset_width
-
-	movzx	eax, byte [ebx]
-
-	mov	esp, ebp
-	pop	ebp
-	ret
-
-global set_window_width
-set_window_width:
-	push	ebp
-	mov	ebp, esp
-
-	mov	eax, dword [ebp + 0x08]
-	add	eax, offset_width
-
-	movzx	ebx, byte [ebp + 0x0C]
-
-	mov	[eax], byte bl
-
-	mov	esp, ebp
-	pop	ebp
-	ret
-
-global get_window_height
-get_window_height:
-	push	ebp
-	mov	ebp, esp
-
-	mov	ebx, dword [ebp + 0x08]
-	add	ebx, offset_height
-
-	movzx	eax, byte [ebx]
-
-	mov	esp, ebp
-	pop	ebp
-	ret
-
-global set_window_height
-set_window_height:
-	push	ebp
-	mov	ebp, esp
-
-	mov	eax, dword [ebp + 0x08]
-	add	eax, offset_height
-
-	movzx	ebx, byte [ebp + 0x0C]
-
-	mov	[eax], byte bl
 
 	mov	esp, ebp
 	pop	ebp
