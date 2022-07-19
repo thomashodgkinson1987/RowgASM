@@ -22,6 +22,8 @@ extern stop_cursor_blinking
 extern hide_cursor
 extern clear_console
 
+extern create_window
+
 extern print
 
 section .data
@@ -81,6 +83,22 @@ section .text
 
 global _main
 _main:
+	push	dword 0x05
+	push	dword 0x0A
+	push	dword 0x02
+	push	dword 0x01
+	call	create_window
+	add	esp, 0x10
+
+	push	dword 0x02
+	push	dword 0x04
+	push	dword 0x08
+	push	dword 0x07
+	call	create_window
+	add	esp, 0x10
+
+	jmp	exit
+
 	call	stop_cursor_blinking
 	call	hide_cursor
 	call	init_random_number_generator
