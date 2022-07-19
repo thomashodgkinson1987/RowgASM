@@ -1,5 +1,3 @@
-extern _memset
-
 section .data
 
 offset_id	db	0x00		; unsigned
